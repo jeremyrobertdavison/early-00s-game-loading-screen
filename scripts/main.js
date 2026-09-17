@@ -45,55 +45,64 @@ Hooks.once("ready", () => {
 Hooks.on("getSceneControlButtons", controls => {
   if (!game.user?.isGM) return;
 
-  controls.loadingScreen = {
+  const tools = {
+    showLoadingScreen: {
+      name: "showLoadingScreen",
+      title: "Show Loading Screen to Everyone",
+      icon: "fa-solid fa-play",
+      order: 0,
+      button: true,
+      visible: true,
+      onChange: () => runControlAction(requestShow)
+    },
+    hideLoadingScreen: {
+      name: "hideLoadingScreen",
+      title: "Hide Loading Screen for Everyone",
+      icon: "fa-solid fa-stop",
+      order: 1,
+      button: true,
+      visible: true,
+      onChange: () => runControlAction(requestHide)
+    },
+    configureLoadingScreen: {
+      name: "configureLoadingScreen",
+      title: "Configure Loading Screen",
+      icon: "fa-solid fa-gears",
+      order: 2,
+      button: true,
+      visible: true,
+      onChange: () => runControlAction(openConfiguration)
+    }
+  };
+
+  const control = {
     name: "loadingScreen",
     title: "Early 00s Loading Screen",
     icon: "fa-solid fa-compact-disc",
     order: 95,
     visible: true,
-
-    // Foundry V13 and V14 both define activeTool as part of SceneControl.
-    // A button must never be used as activeTool because buttons immediately fire
-    // instead of remaining selected. Use a hidden inert tool as the palette state.
-    activeTool: "loadingScreenIdle",
-    tools: {
-      loadingScreenIdle: {
-        name: "loadingScreenIdle",
-        title: "Loading Screen Controls",
-        icon: "fa-solid fa-compact-disc",
-        order: -1,
-        active: true,
-        visible: false
-      },
-      showLoadingScreen: {
-        name: "showLoadingScreen",
-        title: "Show Loading Screen to Everyone",
-        icon: "fa-solid fa-play",
-        order: 0,
-        button: true,
-        visible: true,
-        onChange: () => runControlAction(requestShow)
-      },
-      hideLoadingScreen: {
-        name: "hideLoadingScreen",
-        title: "Hide Loading Screen for Everyone",
-        icon: "fa-solid fa-stop",
-        order: 1,
-        button: true,
-        visible: true,
-        onChange: () => runControlAction(requestHide)
-      },
-      configureLoadingScreen: {
-        name: "configureLoadingScreen",
-        title: "Configure Loading Screen",
-        icon: "fa-solid fa-gears",
-        order: 2,
-        button: true,
-        visible: true,
-        onChange: () => runControlAction(openConfiguration)
-      }
-    }
+    tools
   };
+
+  // Foundry v13 requires SceneControl.activeTool. A button cannot be the
+  // active tool because button tools immediately execute when selected.
+  // Give v13 a real, visible, inert tool so SceneControls always resolves a
+  // valid active tool. Foundry v14 makes activeTool optional, so its palette
+  // can remain button-only and avoids an unnecessary extra tool.
+  if (getFoundryGeneration() === 13) {
+    tools.loadingScreenIdle = {
+      name: "loadingScreenIdle",
+      title: "Loading Screen Controls",
+      icon: "fa-solid fa-compact-disc",
+      order: -1,
+      active: true,
+      visible: true,
+      onChange: () => {}
+    };
+    control.activeTool = "loadingScreenIdle";
+  }
+
+  controls.loadingScreen = control;
 });
 
 function runControlAction(action) {
@@ -300,36 +309,42 @@ async function openConfiguration() {
   const currentMessages = String(game.settings.get(MODULE_ID, SETTINGS.MESSAGES) ?? "");
   const currentInterval = Number(game.settings.get(MODULE_ID, SETTINGS.MESSAGE_INTERVAL) ?? 6);
 
+  // DialogV2 accepts an HTMLDivElement as content in Foundry v13/v14, but
+  // ApplicationV2 requires the content *root* element itself to have no
+  // attributes. Keep the root deliberately empty and put our class/attributes
+  // on a nested element. This avoids "config.content element must have no
+  // attributes" while preserving all form markup and data attributes.
   const content = document.createElement("div");
-  content.className = "e00s-config";
   content.innerHTML = `
-    <p class="e00s-config-intro">
-      Build a classic early-2000s-style transition screen for scene changes, breaks, travel, or dramatic reveals.
-    </p>
+    <div class="e00s-config">
+      <p class="e00s-config-intro">
+        Build a classic early-2000s-style transition screen for scene changes, breaks, travel, or dramatic reveals.
+      </p>
 
-    <div class="form-group">
-      <label for="e00s-background">Background Image</label>
-      <div class="form-fields e00s-file-field">
-        <input id="e00s-background" name="backgroundImage" type="text" value="${escapeHtml(currentBackground)}" placeholder="path/to/image.webp">
-        <button type="button" data-action="browse-background" class="e00s-browse-button">
-          <i class="fa-solid fa-folder-open" aria-hidden="true"></i> Browse
-        </button>
+      <div class="form-group">
+        <label for="e00s-background">Background Image</label>
+        <div class="form-fields e00s-file-field">
+          <input id="e00s-background" name="backgroundImage" type="text" value="${escapeHtml(currentBackground)}" placeholder="path/to/image.webp">
+          <button type="button" data-action="browse-background" class="e00s-browse-button">
+            <i class="fa-solid fa-folder-open" aria-hidden="true"></i> Browse
+          </button>
+        </div>
+        <p class="hint">Choose an image from Foundry's file browser. Leave blank for the built-in dark gradient.</p>
       </div>
-      <p class="hint">Choose an image from Foundry's file browser. Leave blank for the built-in dark gradient.</p>
-    </div>
 
-    <div class="form-group stacked">
-      <label for="e00s-messages">Loading Text</label>
-      <textarea id="e00s-messages" name="messages" rows="9" placeholder="One hint or lore entry per line">${escapeHtml(currentMessages)}</textarea>
-      <p class="hint">Enter one message per line. The module cycles through them while the loading screen is visible.</p>
-    </div>
-
-    <div class="form-group">
-      <label for="e00s-interval">Seconds Between Messages</label>
-      <div class="form-fields">
-        <input id="e00s-interval" name="messageInterval" type="number" min="2" max="60" step="1" value="${currentInterval}">
+      <div class="form-group stacked">
+        <label for="e00s-messages">Loading Text</label>
+        <textarea id="e00s-messages" name="messages" rows="9" placeholder="One hint or lore entry per line">${escapeHtml(currentMessages)}</textarea>
+        <p class="hint">Enter one message per line. The module cycles through them while the loading screen is visible.</p>
       </div>
-      <p class="hint">Allowed range: 2–60 seconds.</p>
+
+      <div class="form-group">
+        <label for="e00s-interval">Seconds Between Messages</label>
+        <div class="form-fields">
+          <input id="e00s-interval" name="messageInterval" type="number" min="2" max="60" step="1" value="${currentInterval}">
+        </div>
+        <p class="hint">Allowed range: 2–60 seconds.</p>
+      </div>
     </div>
   `;
 
@@ -428,6 +443,15 @@ async function saveConfiguration(values) {
   ]);
 
   ui.notifications?.info("Early 00s Loading Screen settings saved.");
+}
+
+function getFoundryGeneration() {
+  const generation = Number(game.release?.generation);
+  if (Number.isFinite(generation) && generation > 0) return generation;
+
+  // Defensive fallback for unusual/transitional builds.
+  const major = Number.parseInt(String(game.version ?? "").split(".")[0], 10);
+  return Number.isFinite(major) ? major : 14;
 }
 
 function getDialogV2Class() {

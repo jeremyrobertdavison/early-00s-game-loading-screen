@@ -4,6 +4,15 @@ All notable changes to **Early 00s Game Loading Screen** will be documented in t
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.3] - 2026-09-17
+
+### Fixed
+
+- Fixed the Configure dialog failing on Foundry VTT with `config.content element must have no attributes`.
+- Fixed scene-control activation errors caused by using an invisible v13 `activeTool`.
+- Foundry v13 now receives a visible inert active tool, while v14 uses its native button-only control palette.
+- Kept the configuration form as an attribute-free DialogV2 root with styled markup nested inside it for v13/v14 compatibility.
+
 ## [1.0.2] - 2026-09-17
 
 ### Changed
