@@ -4,6 +4,17 @@ All notable changes to **Early 00s Game Loading Screen** will be documented in t
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.5] - 2026-09-17
+
+### Fixed
+
+- Fixed selected background images sometimes failing to render even though the FilePicker returned a valid path.
+- Replaced the CSS custom-property background URL with a real full-screen `<img>` layer for more reliable browser loading.
+- Resolves Foundry-hosted image paths through `foundry.utils.getRoute()` so installations using a route prefix or reverse proxy load the correct URL.
+- Preserves absolute HTTP(S), data, blob, and protocol-relative image URLs.
+- Added a raw-path fallback plus GM-visible warning and console diagnostics when an image cannot be loaded.
+- The background rendering path is identical for GM previews, active GM screens, and player screens.
+
 ## [1.0.4] - 2026-09-17
 
 ### Fixed

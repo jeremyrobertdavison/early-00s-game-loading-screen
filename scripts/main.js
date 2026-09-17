@@ -196,8 +196,12 @@ function showLoadingScreen({ preview = false, config = null } = {}) {
   overlay.setAttribute("aria-label", "Game loading screen");
 
   if (backgroundImage) {
-    overlay.style.setProperty("--e00s-loading-background", `url("${cssUrl(backgroundImage)}")`);
-    overlay.classList.add("has-background-image");
+    const background = document.createElement("img");
+    background.className = "e00s-loading-background-image";
+    background.alt = "";
+    background.setAttribute("aria-hidden", "true");
+    loadBackgroundImage(background, backgroundImage);
+    overlay.append(background);
   }
 
   const vignette = document.createElement("div");
@@ -489,9 +493,49 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function cssUrl(value) {
-  return String(value)
-    .replaceAll("\\", "\\\\")
-    .replaceAll('"', '\\"')
-    .replace(/[\n\r\f]/g, "");
+function loadBackgroundImage(img, rawPath) {
+  const candidates = getBackgroundImageCandidates(rawPath);
+  let index = 0;
+
+  const tryNext = () => {
+    if (index >= candidates.length) {
+      const message = `Could not load loading-screen background image: ${rawPath}`;
+      console.error(`${MODULE_ID} | ${message}`, { rawPath, candidates });
+      if (game.user?.isGM) {
+        ui.notifications?.warn("The loading-screen background image could not be loaded. Check the browser console (F12) for the attempted URL.");
+      }
+      img.remove();
+      return;
+    }
+
+    img.src = candidates[index++];
+  };
+
+  img.addEventListener("error", tryNext);
+  tryNext();
+}
+
+function getBackgroundImageCandidates(rawPath) {
+  const path = String(rawPath ?? "").trim();
+  if (!path) return [];
+
+  // Absolute/network URLs already contain everything required to fetch them.
+  if (/^(?:https?:|data:|blob:|\/\/)/i.test(path)) return [path];
+
+  const candidates = [];
+  const getRoute = globalThis.foundry?.utils?.getRoute;
+
+  // Foundry's getRoute applies the server route prefix when one is configured.
+  // This is important for installations served from a sub-path or reverse proxy.
+  if (typeof getRoute === "function") {
+    try {
+      candidates.push(getRoute(path));
+    } catch (error) {
+      console.warn(`${MODULE_ID} | Foundry getRoute could not resolve background path`, error);
+    }
+  }
+
+  // Keep the raw FilePicker path as a compatibility fallback.
+  candidates.push(path);
+  return [...new Set(candidates.filter(Boolean))];
 }

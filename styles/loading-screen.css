@@ -5,7 +5,6 @@
 }
 
 .e00s-loading-screen {
-  --e00s-loading-background: none;
   position: fixed;
   inset: 0;
   z-index: 100000;
@@ -22,13 +21,16 @@
   transition: opacity 180ms ease-out;
 }
 
-.e00s-loading-screen.has-background-image {
-  background-image:
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.42)),
-    var(--e00s-loading-background);
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+.e00s-loading-background-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
 }
 
 .e00s-loading-screen.is-visible {
@@ -38,6 +40,7 @@
 .e00s-loading-vignette {
   position: absolute;
   inset: 0;
+  z-index: 1;
   background:
     linear-gradient(to bottom, rgba(0, 0, 0, 0.34), transparent 18%, transparent 72%, rgba(0, 0, 0, 0.56)),
     radial-gradient(ellipse at center, transparent 48%, rgba(0, 0, 0, 0.45) 100%);
@@ -49,6 +52,7 @@
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
   opacity: 0.16;
   background-image: repeating-linear-gradient(
@@ -62,6 +66,7 @@
 
 .e00s-tip-frame {
   position: absolute;
+  z-index: 3;
   left: clamp(28px, 5vw, 92px);
   bottom: clamp(94px, 12vh, 150px);
   width: min(760px, calc(100vw - 56px));
@@ -103,6 +108,7 @@
 
 .e00s-loading-status {
   position: absolute;
+  z-index: 3;
   right: clamp(28px, 5vw, 92px);
   bottom: clamp(36px, 5vh, 70px);
   display: flex;
@@ -137,7 +143,7 @@
   position: absolute;
   top: 18px;
   right: 18px;
-  z-index: 2;
+  z-index: 4;
 }
 
 .e00s-gm-close {

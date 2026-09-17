@@ -82,7 +82,9 @@ When the loading screen is active, the GM also sees an **End Loading Screen** bu
 
 Choose any image available through Foundry's file browser. Wide images generally work best because the image is displayed using a cover-style layout and automatically crops as necessary to fill the screen.
 
-If no image is selected, the module uses a built-in dark gradient background.
+The module renders the selected background as a real image layer rather than a CSS URL. For Foundry-hosted files it resolves the path through Foundry's route helper, which also supports servers running behind a route prefix or reverse proxy. Absolute HTTP(S), data, and blob URLs are preserved as-is.
+
+If no image is selected, or if the selected image cannot be loaded, the module falls back to its built-in dark gradient background. Game Masters also receive a warning and a console entry if the selected image fails to load.
 
 ### Loading Text
 
@@ -164,8 +166,8 @@ The module uses Foundry's standard hooks, world settings, scene controls, FilePi
 4. Create and push a matching Git tag, for example:
 
 ```bash
-git tag v1.0.4
-git push origin v1.0.4
+git tag v1.0.5
+git push origin v1.0.5
 ```
 
 The included GitHub Actions workflow packages the module when a version tag is pushed. It creates the GitHub release if one does not exist, or uploads/replaces the release assets if you created the release in GitHub first.
