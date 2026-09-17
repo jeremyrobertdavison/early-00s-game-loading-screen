@@ -52,18 +52,6 @@ https://raw.githubusercontent.com/jeremyrobertdavison/early-00s-game-loading-scr
 4. Click **Install**.
 5. Enable **Early 00s Game Loading Screen** in your world's **Manage Modules** window.
 
-### Manual Installation
-
-1. Download `early-00s-game-loading-screen.zip` from the latest GitHub release.
-2. Extract it into your Foundry user-data module directory so the final path is:
-
-```text
-Data/modules/early-00s-game-loading-screen/
-```
-
-3. Restart Foundry VTT if it is already running.
-4. Enable the module in **Manage Modules** for the desired world.
-
 ## Usage
 
 After enabling the module, a **Loading Screen** control appears in the scene controls for Game Masters.
