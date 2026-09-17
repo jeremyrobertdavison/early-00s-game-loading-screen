@@ -30,10 +30,10 @@ Loading . o O o
 
 | Foundry VTT | Status |
 | --- | --- |
-| Version 14 | Verified |
-| Version 13 | Minimum supported version |
+| Version 14 | Supported / verified target |
+| Version 13 | Supported |
 
-The module is system agnostic and does not require any other Foundry modules.
+The module uses APIs documented in both Foundry VTT v13 and v14, including `getSceneControlButtons`, `DialogV2`, and `FilePicker`. It is system agnostic and does not require any other Foundry modules.
 
 ## Installation
 
@@ -51,6 +51,18 @@ https://raw.githubusercontent.com/jeremyrobertdavison/early-00s-game-loading-scr
 
 4. Click **Install**.
 5. Enable **Early 00s Game Loading Screen** in your world's **Manage Modules** window.
+
+### Manual Installation
+
+1. Download `early-00s-game-loading-screen.zip` from the latest GitHub release.
+2. Extract it into your Foundry user-data module directory so the final path is:
+
+```text
+Data/modules/early-00s-game-loading-screen/
+```
+
+3. Restart Foundry VTT if it is already running.
+4. Enable the module in **Manage Modules** for the desired world.
 
 ## Usage
 
@@ -142,7 +154,7 @@ early-00s-game-loading-screen/
 └── module.json
 ```
 
-The module uses Foundry's standard hooks, settings, socket connection, FilePicker, and DialogV2 APIs. It does not require a JavaScript framework or third-party library.
+The module uses Foundry's standard hooks, world settings, scene controls, FilePicker, and DialogV2 APIs. It does not require a JavaScript framework or third-party library.
 
 ### Creating a Release
 
@@ -152,11 +164,11 @@ The module uses Foundry's standard hooks, settings, socket connection, FilePicke
 4. Create and push a matching Git tag, for example:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.2
+git push origin v1.0.2
 ```
 
-The included GitHub Actions workflow packages the module and creates the GitHub release automatically.
+The included GitHub Actions workflow packages the module when a version tag is pushed. It creates the GitHub release if one does not exist, or uploads/replaces the release assets if you created the release in GitHub first.
 
 ## Contributing
 
