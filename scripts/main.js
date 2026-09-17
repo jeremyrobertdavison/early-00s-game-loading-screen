@@ -359,7 +359,10 @@ async function openConfiguration() {
       icon: "fa-solid fa-compact-disc"
     },
     content,
-    modal: true,
+    // This dialog launches Foundry's FilePicker. It must be non-modal so the
+    // picker can receive pointer/keyboard input instead of sitting behind the
+    // DialogV2 modal interaction layer.
+    modal: false,
     buttons: [
       {
         action: "preview",
@@ -403,9 +406,21 @@ async function openConfiguration() {
           current: input?.value || "",
           callback: path => {
             if (input) input.value = path;
+            // Return focus to the configuration window after a selection.
+            dialog.bringToFront?.();
           }
         });
-        picker.render({ force: true });
+
+        // FilePicker is an ApplicationV2 in Foundry v13/v14. Rendering is
+        // asynchronous, so wait until it exists in the DOM before explicitly
+        // bringing it to the front of the application stack. This protects
+        // against theme/module z-index differences without hard-coding CSS.
+        Promise.resolve(picker.render({ force: true }))
+          .then(() => picker.bringToFront?.())
+          .catch(error => {
+            console.error(`${MODULE_ID} | File picker failed to open`, error);
+            ui.notifications?.error("Could not open Foundry's file browser. Check the browser console (F12) for details.");
+          });
       });
     },
     rejectClose: false

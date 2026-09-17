@@ -4,6 +4,16 @@ All notable changes to **Early 00s Game Loading Screen** will be documented in t
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.4] - 2026-09-17
+
+### Fixed
+
+- Fixed the Background Image FilePicker opening behind the configuration dialog and being impossible to interact with.
+- Made the configuration DialogV2 non-modal so Foundry's native FilePicker can receive mouse and keyboard input.
+- Explicitly brings the FilePicker to the front after rendering on Foundry v13/v14.
+- Returns focus to the configuration window after an image is selected.
+- Added visible error reporting if the FilePicker fails to render.
+
 ## [1.0.3] - 2026-09-17
 
 ### Fixed

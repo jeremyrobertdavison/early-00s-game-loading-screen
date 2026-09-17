@@ -33,7 +33,7 @@ Loading . o O o
 | Version 14 | Supported / verified target |
 | Version 13 | Supported |
 
-The module uses APIs documented in both Foundry VTT v13 and v14, including `getSceneControlButtons`, `DialogV2`, and `FilePicker`. The scene-control implementation adapts to the v13 requirement for an active tool while using a button-only palette on v14. It is system agnostic and does not require any other Foundry modules.
+The module uses APIs documented in both Foundry VTT v13 and v14, including `getSceneControlButtons`, `DialogV2`, and `FilePicker`. The scene-control implementation adapts to the v13 requirement for an active tool while using a button-only palette on v14. It is system agnostic and does not require any other Foundry modules. The configuration dialog is intentionally non-modal so Foundry's native FilePicker can open above it and remain fully interactive.
 
 ## Installation
 
@@ -164,8 +164,8 @@ The module uses Foundry's standard hooks, world settings, scene controls, FilePi
 4. Create and push a matching Git tag, for example:
 
 ```bash
-git tag v1.0.3
-git push origin v1.0.3
+git tag v1.0.4
+git push origin v1.0.4
 ```
 
 The included GitHub Actions workflow packages the module when a version tag is pushed. It creates the GitHub release if one does not exist, or uploads/replaces the release assets if you created the release in GitHub first.
