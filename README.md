@@ -2,7 +2,7 @@
 
 A Foundry Virtual Tabletop module that adds a customizable full-screen loading screen inspired by early-2000s video games.
 
-Use it while changing scenes, moving the party between locations, taking a short break, preparing an encounter, or whenever you want to hide the tabletop behind a little atmosphere.
+Use it while changing scenes, moving the party between locations, taking a short break, preparing an encounter, or whenever you want to hide the tabletop behind a little atmosphere. While players remain on the loading screen, the GM can continue navigating Foundry and preparing scenes normally.
 
 The Game Master chooses the background image and supplies any number of rotating messages. Those messages can be gameplay hints, setting lore, recaps, jokes, reminders, quotations, or anything else that fits the campaign. While the screen is active, an animated classic-style indicator loops through:
 
@@ -16,12 +16,14 @@ Loading . o O o
 ## Features
 
 - Full-screen loading overlay synchronized to connected players.
+- **GM Prep Mode:** the live loading screen blocks players but leaves the GM free to navigate scenes, open sheets, configure encounters, and continue preparing.
+- Compact GM-only **LIVE** panel with **Preview** and **End** controls while the loading screen is active.
 - GM-controlled **Show**, **Hide**, and **Configure** tools in Foundry's scene controls.
 - Custom background image selected from Foundry's file browser.
 - Rotating loading text with one message per line.
 - Configurable time between messages.
 - Early-2000s-inspired presentation with subtle scanlines, vignette, tip panel, and animated loading indicator.
-- GM-only button on the active loading screen to end it for everyone.
+- Full-screen local Preview mode so the GM can inspect exactly what players will see.
 - Persists the active state so a player who connects or reloads while the screen is active will still see it.
 - Small module API for macros and integrations.
 - No game-system dependency.
@@ -70,11 +72,17 @@ After enabling the module, a **Loading Screen** control appears in the scene con
 
 It contains three tools:
 
-- **Show Loading Screen to Everyone** — displays the configured loading screen to all connected clients.
-- **Hide Loading Screen for Everyone** — removes the loading screen from all clients.
+- **Show Loading Screen to Players** — displays the configured full-screen loading screen to connected non-GM clients. The GM remains in the normal Foundry interface.
+- **Hide Loading Screen from Players** — removes the loading screen from connected players.
 - **Configure Loading Screen** — changes the background image, loading messages, and message timing.
 
-When the loading screen is active, the GM also sees an **End Loading Screen** button in the upper-right corner. Players do not see this control.
+When the live loading screen is active, the GM does **not** get covered by the overlay. Instead, a compact **Loading Screen LIVE to Players** panel appears at the top of the GM interface with **Preview** and **End** buttons. **Preview** temporarily shows the full loading screen only to the GM; closing the preview returns the GM to prep mode while players remain on the loading screen.
+
+### GM Prep Mode
+
+This is designed for exactly the situation where the GM needs a few minutes behind the curtain. Start the loading screen, then continue using Foundry normally: browse scenes, open journals and actors, place tokens, adjust walls or lighting, and prepare the next encounter. The players remain covered until the GM clicks **End** or **Hide Loading Screen from Players**.
+
+The regular **Preview** command is intentionally different: Preview covers the GM's own screen so the GM can verify the artwork and messages without changing what players are currently seeing.
 
 ## Configuring the Screen
 
@@ -114,8 +122,8 @@ const loadingScreen = game.modules.get("early-00s-game-loading-screen").api;
 Available methods:
 
 ```js
-loadingScreen.show();       // GM: show the loading screen to everyone
-loadingScreen.hide();       // GM: hide the loading screen for everyone
+loadingScreen.show();       // GM: show the loading screen to players
+loadingScreen.hide();       // GM: hide the loading screen from players
 loadingScreen.preview();    // preview locally
 loadingScreen.configure();  // GM: open configuration
 ```
@@ -166,8 +174,8 @@ The module uses Foundry's standard hooks, world settings, scene controls, FilePi
 4. Create and push a matching Git tag, for example:
 
 ```bash
-git tag v1.0.5
-git push origin v1.0.5
+git tag v1.0.6
+git push origin v1.0.6
 ```
 
 The included GitHub Actions workflow packages the module when a version tag is pushed. It creates the GitHub release if one does not exist, or uploads/replaces the release assets if you created the release in GitHub first.

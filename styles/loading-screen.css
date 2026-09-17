@@ -219,3 +219,86 @@
     transition: none;
   }
 }
+
+/* Non-blocking GM prep-mode indicator shown while players are on the live loading screen. */
+.e00s-gm-status {
+  position: fixed;
+  top: 52px;
+  left: 50%;
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 7px 9px 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 4px;
+  background: rgba(9, 10, 12, 0.92);
+  color: #efefef;
+  font: 600 12px/1 Arial, Helvetica, sans-serif;
+  letter-spacing: 0.02em;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+  transform: translateX(-50%);
+  pointer-events: auto;
+  user-select: none;
+}
+
+.e00s-gm-status-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.e00s-live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cf3a32;
+  box-shadow: 0 0 7px rgba(207, 58, 50, 0.8);
+}
+
+.e00s-gm-status-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 26px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  color: #f1f1f1;
+  font: 600 11px/1 Arial, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+.e00s-gm-status-button:hover,
+.e00s-gm-status-button:focus-visible {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.e00s-gm-status-end {
+  border-color: rgba(220, 76, 67, 0.5);
+}
+
+@media (max-width: 760px) {
+  .e00s-gm-status {
+    top: 44px;
+  }
+
+  .e00s-gm-status-live {
+    font-size: 0;
+  }
+
+  .e00s-gm-status-live::after {
+    content: "LIVE";
+    font-size: 12px;
+  }
+
+  .e00s-gm-status-button span {
+    display: none;
+  }
+}

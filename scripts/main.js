@@ -1,5 +1,6 @@
 const MODULE_ID = "early-00s-game-loading-screen";
 const OVERLAY_ID = "e00s-loading-screen";
+const GM_STATUS_ID = "e00s-loading-gm-status";
 
 const SETTINGS = {
   BACKGROUND: "backgroundImage",
@@ -36,10 +37,9 @@ Hooks.once("ready", () => {
   }
 
   // If the world was left with the loading screen active, newly connected
-  // users should see it immediately after Foundry is ready.
-  if (game.settings.get(MODULE_ID, SETTINGS.ACTIVE)) {
-    showLoadingScreen();
-  }
+  // players should see it immediately. GMs get a non-blocking status panel
+  // so they can keep navigating Foundry and preparing the next scene.
+  applyActiveState(game.settings.get(MODULE_ID, SETTINGS.ACTIVE));
 });
 
 Hooks.on("getSceneControlButtons", controls => {
@@ -48,7 +48,7 @@ Hooks.on("getSceneControlButtons", controls => {
   const tools = {
     showLoadingScreen: {
       name: "showLoadingScreen",
-      title: "Show Loading Screen to Everyone",
+      title: "Show Loading Screen to Players",
       icon: "fa-solid fa-play",
       order: 0,
       button: true,
@@ -57,7 +57,7 @@ Hooks.on("getSceneControlButtons", controls => {
     },
     hideLoadingScreen: {
       name: "hideLoadingScreen",
-      title: "Hide Loading Screen for Everyone",
+      title: "Hide Loading Screen from Players",
       icon: "fa-solid fa-stop",
       order: 1,
       button: true,
@@ -145,23 +145,75 @@ function registerSettings() {
     config: false,
     type: Boolean,
     default: false,
-    onChange: active => {
-      if (active) showLoadingScreen();
-      else hideLoadingScreen();
-    }
+    onChange: active => applyActiveState(active)
   });
 }
 
 async function requestShow() {
   if (!game.user?.isGM) return;
   await game.settings.set(MODULE_ID, SETTINGS.ACTIVE, true);
-  showLoadingScreen();
+  // Apply locally as well. This also handles the case where ACTIVE was already
+  // true and Foundry therefore had no setting change to broadcast.
+  applyActiveState(true);
 }
 
 async function requestHide() {
   if (!game.user?.isGM) return;
   await game.settings.set(MODULE_ID, SETTINGS.ACTIVE, false);
+  applyActiveState(false);
+}
+
+function applyActiveState(active) {
+  if (active) {
+    if (game.user?.isGM) {
+      // The live loading screen is intended to hide prep from players, not
+      // prevent the GM from doing that prep. Keep the GM's Foundry UI usable
+      // and show a small non-blocking live-status panel instead.
+      hideLoadingScreen();
+      showGMStatusPanel();
+    } else {
+      hideGMStatusPanel();
+      showLoadingScreen();
+    }
+    return;
+  }
+
   hideLoadingScreen();
+  hideGMStatusPanel();
+}
+
+function showGMStatusPanel() {
+  if (!game.user?.isGM) return;
+  if (document.getElementById(GM_STATUS_ID)) return;
+
+  const panel = document.createElement("div");
+  panel.id = GM_STATUS_ID;
+  panel.className = "e00s-gm-status";
+  panel.setAttribute("role", "status");
+  panel.setAttribute("aria-live", "polite");
+
+  const live = document.createElement("span");
+  live.className = "e00s-gm-status-live";
+  live.innerHTML = '<span class="e00s-live-dot" aria-hidden="true"></span> Loading Screen LIVE to Players';
+
+  const previewButton = document.createElement("button");
+  previewButton.type = "button";
+  previewButton.className = "e00s-gm-status-button";
+  previewButton.innerHTML = '<i class="fa-solid fa-eye" aria-hidden="true"></i><span>Preview</span>';
+  previewButton.addEventListener("click", () => showLoadingScreen({ preview: true }));
+
+  const endButton = document.createElement("button");
+  endButton.type = "button";
+  endButton.className = "e00s-gm-status-button e00s-gm-status-end";
+  endButton.innerHTML = '<i class="fa-solid fa-stop" aria-hidden="true"></i><span>End</span>';
+  endButton.addEventListener("click", () => runControlAction(requestHide));
+
+  panel.append(live, previewButton, endButton);
+  document.body.append(panel);
+}
+
+function hideGMStatusPanel() {
+  document.getElementById(GM_STATUS_ID)?.remove();
 }
 
 function getMessages(rawOverride) {
@@ -180,7 +232,15 @@ function getMessageIntervalMs(intervalOverride) {
 }
 
 function showLoadingScreen({ preview = false, config = null } = {}) {
+  // A live loading screen never blocks a GM. Preview is the deliberate
+  // exception so the GM can inspect exactly what players will see.
+  if (!preview && game.user?.isGM) {
+    showGMStatusPanel();
+    return;
+  }
+
   if (!preview && document.getElementById(OVERLAY_ID)) return;
+  if (preview) hideGMStatusPanel();
   hideLoadingScreen();
 
   const backgroundImage = String(config?.backgroundImage ?? game.settings.get(MODULE_ID, SETTINGS.BACKGROUND) ?? "").trim();
@@ -249,7 +309,7 @@ function showLoadingScreen({ preview = false, config = null } = {}) {
       if (preview) {
         hideLoadingScreen();
         if (game.settings.get(MODULE_ID, SETTINGS.ACTIVE)) {
-          window.setTimeout(() => showLoadingScreen(), 250);
+          window.setTimeout(() => applyActiveState(true), 250);
         }
       } else requestHide();
     });

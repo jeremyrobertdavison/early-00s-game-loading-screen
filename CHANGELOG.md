@@ -4,6 +4,20 @@ All notable changes to **Early 00s Game Loading Screen** will be documented in t
 
 The project follows [Semantic Versioning](https://semver.org/).
 
+## [1.0.6] - 2026-09-17
+
+### Added
+
+- Added **GM Prep Mode**: the live loading screen now blocks non-GM players while leaving the GM's Foundry interface fully usable.
+- Added a compact GM-only **Loading Screen LIVE to Players** status panel while the screen is active.
+- Added **Preview** and **End** buttons to the live status panel.
+- Preview temporarily shows the full loading screen only to the GM, then returns to prep mode when closed.
+
+### Changed
+
+- Renamed the scene-control actions to **Show Loading Screen to Players** and **Hide Loading Screen from Players** to reflect the new behavior.
+- Reconnecting/reloading players still receive the active loading screen, while reconnecting/reloading GMs receive the non-blocking live status panel instead.
+
 ## [1.0.5] - 2026-09-17
 
 ### Fixed
